@@ -1,3 +1,4 @@
+
 class Customer:
     last_id = 0
     def __init__(self, first_name, last_name):
@@ -10,18 +11,31 @@ class Customer:
         return f'Cust[{self.id}, {self.first_name}, {self.last_name}]'
 
 class Account:
-    last_id = 0
+    last_id = 1000
     def __init__(self, customer):
         self.customer = customer
         Account.last_id += 1
         self.id = Account.last_id
         self._balance = 0
 
+    def deposit(self, amount):
+        if amount < 0:
+            print('Invalid amount.')
+            raise InvalidAmountException(f'Invalid amount: {amount}')
+        else:
+            self._balance += amount
+
+    def charge(self, amount):
+        if amount > self._balance:
+            print('Insufficient fund.')
+        else:
+            self._balance -= amount
+
     def __repr__(self):
-        return f'Ac[{self.id}, {self.customer.last_name}, {self.customer._balance}]'
+        return f'Acc[{self.id}, {self.customer.last_name}, {self._balance}]'
 
 class Bank:
-    def __init__(self):
+    def __init__(self, name):
         self.name = name
         self.customer_list = []
         self.account_list = []
@@ -37,15 +51,37 @@ class Bank:
         return a
 
     def __repr__(self):
-        return f'Bank[{self.name}: \n{self.customer_list}\n {self.account_list}]'
+        return f'Bank[{self.name}: \n{self.customer_list}\n{self.account_list}]'
+
+
+class BankException(Exception):
+    pass
+
+class InsufficientFundException(BankException):
+    pass
+
+class InvalidAmountException(BankException):
+    pass
 
 bank = Bank('SGH Bank')
 
 c1 = bank.create_customer('John', 'Smith')
 a1 = bank.create_account(c1)
+
+try:
+    a1.deposit(-500)
+    a1.charge(300)
+except InsufficientFundException as ife:
+    print(ife)
+except InvalidAmountException as iae:
+    print(iae)
 a2 = bank.create_account(c1)
 print(bank)
 c2 = bank.create_customer('Anne', 'Brown')
 a3 = bank.create_account(c2)
 print('--------------')
 print(bank)
+
+#TODO:
+# Add deposit and charge method to account - they should have a
+# parameter: amount
